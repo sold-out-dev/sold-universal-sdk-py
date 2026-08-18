@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sold_universal_sdk"
+version = "1.0.0"
+description = "Universal SDK - Akamai Bot Manager support"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Framework :: AsyncIO",
+]
+dependencies = [
+    "httpx[http2]>=0.24.0",
+    "certifi>=2024.2.2",
+    "charset-normalizer>=3.3.2",
+    "idna>=3.6",
+    "jsonpickle>=3.0.3",
+    "urllib3>=2.2.1"
+]
+license = {file = "LICENSE"}
+
+[project.urls]
+homepage = "https://github.com/sold-out-dev/sold-universal-sdk-py"
+
+[tool.setuptools]
+packages = [
+    "universal_sdk",
+    "universal_sdk.akamai",
+]
