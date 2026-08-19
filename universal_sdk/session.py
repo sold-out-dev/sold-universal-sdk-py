@@ -51,7 +51,7 @@ class Session:
             str: Sensor data as a string.
             str: Context data as a string.
         """
-        sensor_endpoint = f"{self.base_url}/v3/sensor"
+        sensor_endpoint = f"{self.base_url}/v2/sensor"
 
         headers = self._build_headers()
         payload_data = {
