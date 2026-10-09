@@ -107,8 +107,16 @@ pixel_data = session.generate_pixel_data(PixelInput(
 ```python
 from universal_sdk import SbsdInput
 
-sbsd_data = session.generate_sbsd_data(SbsdInput(
-    # sbsd input fields
+# First request: send the script, keep the returned context.
+sbsd_data, context = session.generate_sbsd_data(SbsdInput(
+    index=0, user_agent=ua, uuid=uuid, page_url=page_url, o_cookie=o_cookie,
+    script=script, accept_language=accept_language, ip=ip,
+))
+
+# Subsequent requests: send the context instead of the script.
+sbsd_data, context = session.generate_sbsd_data(SbsdInput(
+    index=1, user_agent=ua, uuid=uuid, page_url=page_url, o_cookie=o_cookie,
+    script="", accept_language=accept_language, ip=ip, context=context,
 ))
 ```
 
