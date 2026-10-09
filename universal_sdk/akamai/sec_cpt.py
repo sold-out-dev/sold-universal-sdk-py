@@ -12,8 +12,13 @@ sec_challenge_expr = re.compile(r'challenge="(.*?)"')
 sec_page_expr = re.compile(r'data-duration=\d+\s+src="([^"]+)"')
 
 
+# A challenge without a `count` field expects ten answers: the original
+# implementation always generated ten.
+LEGACY_ANSWER_COUNT = 10
+
+
 class SecCptChallengeData:
-    def __init__(self, token: str, timestamp: int, nonce: str, difficulty: int, count: int):
+    def __init__(self, token: str, timestamp: int, nonce: str, difficulty: int, count: int = LEGACY_ANSWER_COUNT):
         self.token = token
         self.timestamp = timestamp
         self.nonce = nonce
@@ -43,7 +48,8 @@ class SecCptChallenge:
             api_response.get('token', ''),
             api_response.get('timestamp', 0),
             api_response.get('nonce', ''),
-            api_response.get('difficulty', 0)
+            api_response.get('difficulty', 0),
+            api_response.get('count') or LEGACY_ANSWER_COUNT
         )
 
         duration = api_response.get('chlg_duration', 0)
@@ -65,7 +71,7 @@ class SecCptChallenge:
             challenge_data.get('timestamp', 0),
             challenge_data.get('nonce', ''),
             challenge_data.get('difficulty', 0),
-            challenge_data.get('count', 0)
+            challenge_data.get('count') or LEGACY_ANSWER_COUNT
         )
 
     @staticmethod
@@ -109,6 +115,7 @@ class SecCptChallenge:
     def _generate_sec_cpt_answers(self, sec: str) -> List[str]:
         answers = []
         difficulty = self.challenge_data.difficulty
+        count = self.challenge_data.count or LEGACY_ANSWER_COUNT
 
         while True:
             answer = f"0.{os.urandom(8).hex()}"
@@ -123,7 +130,7 @@ class SecCptChallenge:
                 difficulty += 1
                 answers.append(answer)
 
-                if len(answers) == self.challenge_data.count:
+                if len(answers) == count:
                     break
                 continue
 

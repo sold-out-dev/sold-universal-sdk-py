@@ -5,6 +5,22 @@ pixel_script_url_expr = re.compile(r'src="(https?://.+/akam/\d+/\w+)"')
 pixel_script_var_expr = re.compile(r'g=_\[(\d+)]')
 pixel_script_string_array_expr = re.compile(r'var _=\[(.+?)];')
 pixel_script_strings_expr = re.compile(r'("[^",]*")')
+js_escape_expr = re.compile(r'\\(x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|.)', re.S)
+js_simple_escapes = {'n': '\n', 'r': '\r', 't': '\t', 'b': '\b', 'f': '\f', 'v': '\v', '0': '\0'}
+
+
+def _unescape_js_string(raw: str) -> str:
+    """Decodes the escape sequences of a JavaScript string literal body.
+
+    The pixel script stores its strings hex-escaped ("\\x39\\x34..."); the
+    challenge needs the decoded value, exactly what the browser would read.
+    """
+    def repl(m):
+        e = m.group(1)
+        if e[0] in 'xu' and len(e) > 1:
+            return chr(int(e[1:], 16))
+        return js_simple_escapes.get(e, e)
+    return js_escape_expr.sub(repl, raw)
 
 
 def parse_pixel_html_var(src: str) -> int:
@@ -79,5 +95,4 @@ def parse_pixel_script_var(src: str) -> str:
     if string_index >= len(raw_strings):
         raise Exception("universal-sdk: script var not found")
 
-    string_value = raw_strings[string_index].strip('"')
-    return string_value
+    return _unescape_js_string(raw_strings[string_index][1:-1])
